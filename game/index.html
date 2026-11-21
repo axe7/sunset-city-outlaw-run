@@ -3,17 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Block Dodger</title>
+<title>Sunset City: Outlaw Run</title>
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #11141b; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1d1420; }
   #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  /* Read aloud, never shown: the status line screen readers announce. */
   #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .overlay {
+    position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; color: #fdf6ec; font-family: system-ui, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, rgba(43,16,85,0.82) 0%, rgba(146,38,116,0.72) 45%, rgba(255,110,64,0.66) 100%);
+    z-index: 5; padding: 24px;
+  }
+  .overlay[hidden] { display: none; }
+  body.shotmode .overlay { display: none !important; }
+  .kicker { letter-spacing: 0.42em; font-size: 13px; font-weight: 700; color: #ffd98a; text-transform: uppercase; }
+  h1.title {
+    margin: 6px 0 0; font-size: clamp(44px, 9vw, 96px); line-height: 0.95; font-weight: 900; font-style: italic;
+    color: #fff; text-shadow: 0 4px 0 #e23b7e, 0 10px 28px rgba(0,0,0,0.55); letter-spacing: 0.01em;
+  }
+  h1.title .run { color: #ffd23e; }
+  .story { max-width: 620px; font-size: 17px; line-height: 1.45; margin: 18px 0 4px; text-shadow: 0 1px 8px rgba(0,0,0,0.6); }
+  .controls {
+    display: flex; flex-direction: column; gap: 4px; margin: 18px 0 22px;
+    font-size: 14.5px; text-align: left; background: rgba(16,10,22,0.55); padding: 14px 20px; border-radius: 12px;
+  }
+  .controls .line { display: flex; gap: 16px; align-items: baseline; }
+  .controls b { color: #ffd98a; font-weight: 700; text-align: right; min-width: 118px; flex: none; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  button {
+    font: 800 17px system-ui, sans-serif; color: #241128; background: linear-gradient(180deg, #ffd23e, #ff9a3d);
+    border: 0; border-radius: 999px; padding: 13px 30px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+  button:hover { filter: brightness(1.08); }
+  button.secondary { background: rgba(255,255,255,0.16); color: #fdf6ec; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5); }
+  .fineprint { margin-top: 20px; font-size: 12.5px; color: rgba(255,255,255,0.75); }
+  h1.plain { font-size: clamp(38px, 7vw, 72px); margin: 0 0 8px; font-weight: 900; font-style: italic; text-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+  .overlay p.sub { font-size: 17px; margin: 0 0 22px; text-shadow: 0 1px 8px rgba(0,0,0,0.6); }
 </style>
 </head>
 <body>
-<canvas id="game" aria-label="Block Dodger: move the paddle left and right to dodge falling blocks and catch coins"></canvas>
+<canvas id="game" aria-label="Sunset City: Outlaw Run — a top-down open-world crime game. Walk and drive with WASD, take cars with F, aim with the mouse."></canvas>
 <p id="status" role="status" aria-live="polite"></p>
+
+<section class="overlay" id="overlay-title">
+  <div class="kicker">Sunset City presents</div>
+  <h1 class="title">SUNSET CITY<br><span class="run">OUTLAW RUN</span></h1>
+  <p class="story">
+    Six years gone, and Danny Solano is back on the boardwalk. Rosa Delgado kept his seat at the diner
+    and a list of jobs with his name on them: a borrowed Vireo to fetch, a package the whole bay is
+    watching, and the Neon Jackals to answer to. Drive anything. Run from everyone. Watch the sun go down rich.
+  </p>
+  <div class="controls">
+    <div class="line"><b>W A S D</b><span>walk / drive</span></div>
+    <div class="line"><b>SHIFT</b><span>run</span></div>
+    <div class="line"><b>F</b><span>get in / out of a car (any car — it's that kind of town)</span></div>
+    <div class="line"><b>MOUSE + CLICK</b><span>aim, punch and shoot</span></div>
+    <div class="line"><b>SPACE</b><span>handbrake</span></div>
+    <div class="line"><b>E</b><span>eat at a food stand</span></div>
+    <div class="line"><b>P / M</b><span>pause / mute</span></div>
+  </div>
+  <div class="row">
+    <button id="btn-new" type="button">New game</button>
+    <button id="btn-continue" type="button" class="secondary">Continue</button>
+  </div>
+  <p class="fineprint">An original open-world crime game, built for the make.fun “Make GTA 6” bounty. Every name, place and car in Sunset City is invented. Progress saves in your browser.</p>
+</section>
+
+<section class="overlay" id="overlay-pause" hidden>
+  <h1 class="plain">PAUSED</h1>
+  <p class="sub">The sun waits for no one. Well — just this once.</p>
+  <div class="row"><button id="btn-resume" type="button">Back to the street</button></div>
+</section>
+
+<section class="overlay" id="overlay-busted" hidden>
+  <h1 class="plain">BUSTED</h1>
+  <p class="sub">The Sunset City PD walks you to the station doors. The fine stings; the record stays clean-ish.</p>
+  <div class="row"><button id="btn-busted" type="button">Pay the fine, walk free</button></div>
+</section>
+
+<section class="overlay" id="overlay-down" hidden>
+  <h1 class="plain">DOWN AND OUT</h1>
+  <p class="sub">You wake up under hospital lights, smelling of antiseptic and regret.</p>
+  <div class="row"><button id="btn-down" type="button">Get up, get even</button></div>
+</section>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
