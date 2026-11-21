@@ -1,3 +1,7 @@
+[![make.fun bounty](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01)
+[![rank](https://make.fun/badge/gta6-01/axe7/sunset-city-outlaw-run/rank.svg)](https://make.fun/bounty/gta6-01)
+[![reward](https://make.fun/badge/gta6-01/axe7/sunset-city-outlaw-run/reward.svg)](https://make.fun/bounty/gta6-01)
+
 # Sunset City: Outlaw Run
 
 An original open-world crime game for the make.fun **“Make GTA 6”** bounty
