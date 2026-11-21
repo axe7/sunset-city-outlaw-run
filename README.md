@@ -4,81 +4,99 @@
 
 # Sunset City: Outlaw Run
 
-An original open-world crime game for the make.fun **“Make GTA 6”** bounty
-(gta6-01). A 2D top-down action game in vanilla JavaScript — no frameworks,
-no external assets, no network requests. Every name, place, vehicle and line
-of story in Sunset City is invented for this game.
+An original open-world crime game built for make.fun's **“Make GTA 6”** bounty
+(gta6-01). It is a 2D top-down action game written in plain JavaScript — no
+framework, no library, no downloaded assets, no network calls at all. The
+city, the people, the cars, the story and every sound are invented here.
 
-## The game
+## Play it
 
-Six years gone, and Danny Solano is back on the boardwalk. Rosa Delgado kept
-his seat at Rosa's Diner — and a list of jobs with his name on them:
+```sh
+node serve.ts            # serves game/ at http://localhost:8080
+# or drop game/ on any static host and open index.html — it works offline.
+```
 
-1. **Welcome Home** — fetch a borrowed gold Vireo GT from the marina and
-   deliver it to Sunset Customs. Pays $300 and earns Danny his pistol.
-2. **Pier Pressure** — carry a watched package from the pier to Club Neon
-   against a 150-second clock, with the heat pinned at two stars. Pays $600.
-3. **Jackals at Dusk** — face down four Neon Jackal rivals on the boardwalk,
-   then lose the heat. Pays $1,000.
+`node main.ts` (with `MAKEFUN_OUTPUT_DIR` set) assembles the entry: it copies
+`game/` and `screenshots/` into the output folder and writes `dossier.json`
+through the kit's `buildDossier`.
 
-Around the story: a living 10×9-block city with a beach, pier and boardwalk;
-traffic that drives the grid and honks; pedestrians who stroll, flee and
-report crimes they actually witness; a five-star wanted system where police
-spawn off-screen, pursue, ram and bust (stand near an officer while slow and
-the bust meter fills — break line of sight and the heat decays); car theft
-with the driver pulled out; a respray shop that clears heat and repairs;
-food stands; and 12 golden film reels hidden around the city as a collectible
-hunt. Progress (money, story, reels, position) saves to `localStorage`.
+## The story
 
-### Controls
+Danny Solano is back in Sunset City after six years away. Rosa Delgado kept
+his booth at Rosa's Diner — and a list of jobs with his name on it:
+
+- **Welcome Home** — bring a borrowed gold Vireo GT from the marina to Sunset
+  Customs. Pays $300, and Danny walks away with a pistol.
+- **Pier Pressure** — run a watched package from the pier to Club Neon inside
+  150 seconds, with the heat held at two stars. Pays $600.
+- **Jackals at Dusk** — settle things with four Neon Jackal rivals on the
+  boardwalk, then shake the police. Pays $1,000.
+
+## A living city
+
+The city is procedural and seeded, so the same seed always builds the same
+streets: a 10×9-block grid with a beach, a pier and a boardwalk, plus
+landmarks like Rosa's Diner, Sunset Customs, the police station and the
+hospital. Around the story it offers:
+
+- **Traffic** that drives the grid, turns at intersections, brakes for cars
+  ahead, and honks.
+- **Pedestrians** who stroll the sidewalks, run from gunfire, and only report
+  a crime they can actually see — the witness model checks line of sight and
+  distance.
+- **A five-star wanted system**: police spawn off-screen, chase, ram and box
+  the player in. Linger near an officer while slow and the bust meter fills;
+  break line of sight and the heat cools off. Getting busted or going down
+  costs a fine and drops Danny at the station or the hospital.
+- **Car theft** — take any car with F, parked or occupied (pulling a driver
+  out in front of witnesses adds heat).
+- **A respray shop** that clears heat and repairs damage, **food stands**
+  ($25 for +50 health), and **12 golden film reels** hidden around the city
+  to hunt down.
+- **Saving** — money, story progress, reels and position persist in
+  `localStorage`, so a run can be continued later.
+
+## Controls
 
 | Keys | Action |
 | --- | --- |
 | W A S D / arrows | walk / drive |
 | Shift | run |
-| F | enter / exit a car (parked, or pull a driver out) |
+| F | get in / out of a car |
 | Mouse + click | aim, punch, shoot (once armed) |
 | Space | handbrake |
-| E | eat at a food stand ($25, +50 health) |
+| E | eat at a food stand |
 | P / Esc | pause · M mute |
 
-Sound is all synthesized WebAudio: engine and siren loops, impacts, gunfire,
-and a four-chord Am–F–C–G sunset groove. No audio files exist.
+All sound is synthesized live with WebAudio — engine and siren loops, impacts,
+gunfire, and a four-chord Am–F–C–G groove over the sunset. There are no audio
+files anywhere in the game.
 
-## Running it
+## How it is built
 
-```sh
-node serve.ts            # serves game/ at http://localhost:8080
-# or open game/index.html from any static host — it is fully offline.
-```
-
-`node main.ts` (with `MAKEFUN_OUTPUT_DIR` set) copies `game/` and
-`screenshots/` to the output directory and writes `dossier.json` via the
-kit's `buildDossier`, unchanged.
-
-## Source map — one job per file (`game/src/`)
+`game/src/` splits the game into one file per job:
 
 | File | Job |
 | --- | --- |
-| `config.js` | World geometry, tuning constants, prices, palette, car models |
-| `rng.js` | Seeded RNG (mulberry32) + math helpers — same seed, same city |
-| `input.js` | Keyboard/mouse state and one-shot press queue |
-| `audio.js` | All synthesized sound effects and the music loop |
+| `config.js` | World geometry, tuning, prices, palette, car models |
+| `rng.js` | Seeded random numbers (mulberry32) and maths helpers |
+| `input.js` | Keyboard and mouse state, one-shot press queue |
+| `audio.js` | Every synthesized sound and the music loop |
 | `city.js` | Procedural city generation, surfaces, collision queries |
-| `vehicles.js` | Car factory, shared arcade physics, traffic AI, spawning |
-| `people.js` | Pedestrian factory, walker/flee/rival AI, line of sight |
-| `police.js` | Wanted/heat model, police car factory, pursuit AI |
+| `vehicles.js` | Car factory, shared arcade physics, traffic AI |
+| `people.js` | Pedestrian factory, walker / flee / rival behaviour, sight |
+| `police.js` | Wanted and heat model, police cars, pursuit AI |
 | `missions.js` | The three-mission story: steps, markers, rewards |
 | `game.js` | The simulation: player, combat, crimes, busts, saves |
-| `render.js` | Camera and world rendering (buildings, cars, people, sunset grade) |
+| `render.js` | Camera and world drawing, buildings, cars, people, sunset grade |
 | `hud.js` | HUD: vitals, stars, objective, dialogue, minimap |
-| `shots.js` | Deterministic staged scenes behind `?shot=<name>` for screenshots |
+| `shots.js` | Deterministic staged scenes for screenshots (`?shot=<name>`) |
 | `main.js` | Boot, DOM overlays, the frame loop |
 
 ## Screenshots
 
 `screenshots/` holds four frames of real gameplay, staged deterministically
-through `shots.json` (`?shot=drive|foot|chase|mission&seed=1`): driving the
-Vireo downtown, on foot outside Rosa's Diner, a four-star pursuit, and the
-timed pier delivery under police pressure. HUD and minimap are visible in
-each, exactly as a player sees them.
+through `shots.json` (`?shot=drive|foot|chase|mission&seed=1`): the Vireo
+downtown, on foot outside Rosa's Diner, a four-star pursuit, and the timed
+pier delivery under police pressure. The HUD and minimap are visible in each,
+exactly as a player sees them.
