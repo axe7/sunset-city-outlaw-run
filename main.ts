@@ -8,7 +8,7 @@
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 // Inside the grader the output directory is /output (MAKEFUN_OUTPUT_DIR unset).
 
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -33,10 +33,10 @@ const DOSSIER_CAPS = {
   game_path_max_bytes: 1000,
 };
 
-/** Empty a directory (creating it when missing) so a run never inherits stale files. */
+/** Empty a directory's contents (creating it when missing) so a run never inherits stale files, without removing the directory itself, which may be a mount point. */
 function freshDirectory(path: string): void {
-  rmSync(path, { recursive: true, force: true });
   mkdirSync(path, { recursive: true });
+  for (const entry of readdirSync(path)) rmSync(join(path, entry), { recursive: true, force: true });
 }
 
 /** Copy one top-level folder of the repo into the output, when it exists. */
